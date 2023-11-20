@@ -18,5 +18,8 @@ namespace CarDealer.DTOs.Export
 
         [XmlAttribute("spent-money")]
         public decimal SpentMoney { get; set; }
+
+        [XmlIgnore]
+        public bool IsYoungDriver { get; set; }
     }
 }
