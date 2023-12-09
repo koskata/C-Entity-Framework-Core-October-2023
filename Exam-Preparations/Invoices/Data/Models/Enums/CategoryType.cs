@@ -9,7 +9,6 @@ using Newtonsoft.Json.Converters;
 
 namespace Invoices.Data.Models.Enums
 {
-    [JsonConverter(typeof(StringEnumConverter))]
     public enum CategoryType
     {
         ADR, 

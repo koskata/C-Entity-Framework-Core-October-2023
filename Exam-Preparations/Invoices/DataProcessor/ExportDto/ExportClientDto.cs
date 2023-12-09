@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,15 +12,21 @@ namespace Invoices.DataProcessor.ExportDto
     public class ExportClientDto
     {
         [XmlAttribute("InvoicesCount")]
-        public int InvoicesCount { get; set; }
+        public int Count { get; set; }
 
+        [Required]
+        [MinLength(10)]
+        [MaxLength(25)]
         [XmlElement("ClientName")]
-        public string ClientName { get; set; }
+        public string Name { get; set; }
 
+        [Required]
+        [MinLength(10)]
+        [MaxLength(15)]
         [XmlElement("VatNumber")]
         public string NumberVat { get; set; }
 
         [XmlArray("Invoices")]
-        public ExportInvoiceDto[] Invoices { get; set; }
+        public ExportInvoicesClientDto[] Invoices { get; set; }
     }
 }

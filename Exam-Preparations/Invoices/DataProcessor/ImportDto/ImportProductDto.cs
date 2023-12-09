@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 
 using Invoices.Data.Models.Enums;
 
-using Invoices.Data.Models;
-
 namespace Invoices.DataProcessor.ImportDto
 {
     public class ImportProductDto
     {
         [Required]
-        [MinLength(9), MaxLength(30)]
+        [MinLength(9)]
+        [MaxLength(30)]
         public string Name { get; set; }
 
         [Required]
@@ -22,8 +21,7 @@ namespace Invoices.DataProcessor.ImportDto
         public decimal Price { get; set; }
 
         [Required]
-        [EnumDataType(typeof(CategoryType))]
-        public CategoryType CategoryType { get; set; }
+        public int CategoryType { get; set; }
 
         public int[] Clients { get; set; }
     }

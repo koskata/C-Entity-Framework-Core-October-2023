@@ -6,22 +6,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-using Invoices.Data.Models;
-
 namespace Invoices.DataProcessor.ImportDto
 {
     [XmlType("Client")]
     public class ImportClientDto
     {
         [Required]
-        [MinLength(10), MaxLength(25)]
+        [MinLength(10)]
+        [MaxLength(25)]
+        [XmlElement]
         public string Name { get; set; }
 
         [Required]
-        [MinLength(10), MaxLength(15)]
+        [MinLength(10)]
+        [MaxLength(15)]
+        [XmlElement]
         public string NumberVat { get; set; }
 
         [XmlArray("Addresses")]
-        public ImportAddressDto[] Addresses { get; set; }
+        public ImportAddressesClientDto[] Addresses { get; set; }
     }
 }

@@ -17,7 +17,8 @@ namespace Invoices.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MinLength(9), MaxLength(30)]
+        [MinLength(9)]
+        [MaxLength(30)]
         public string Name { get; set; }
 
         [Required]

@@ -44,50 +44,42 @@
 
             List<Client> clients = new List<Client>();
 
-            foreach (var client in clientsDto)
+            foreach (var clientDto in clientsDto)
             {
-                if (!IsValid(client))
+                if (!IsValid(clientDto))
                 {
                     sb.AppendLine(ErrorMessage);
+                    continue;
                 }
 
-                else
+                var clientToAdd = new Client()
                 {
-                    var clientToAdd = new Client()
+                    Name = clientDto.Name,
+                    NumberVat = clientDto.NumberVat
+                };
+
+                foreach (var address in clientDto.Addresses)
+                {
+                    if (!IsValid(address))
                     {
-                        Name = client.Name,
-                        NumberVat = client.NumberVat,
-                    };
-
-
-                    foreach (var address in client.Addresses)
-                    {
-                        if (!IsValid(address))
-                        {
-                            sb.AppendLine(ErrorMessage);
-                        }
-
-                        else
-                        {
-                            var addressToAdd = new Address()
-                            {
-                                StreetName = address.StreetName,
-                                StreetNumber = address.StreetNumber,
-                                PostCode = address.PostCode,
-                                City = address.City,
-                                Country = address.Country
-                            };
-
-                            clientToAdd.Addresses.Add(addressToAdd);
-                        }
-
+                        sb.AppendLine(ErrorMessage);
+                        continue;
                     }
 
+                    var addressToAdd = new Address()
+                    {
+                        StreetName = address.StreetName,
+                        StreetNumber = address.StreetNumber,
+                        PostCode = address.PostCode,
+                        City = address.City,
+                        Country = address.Country,
+                    };
 
-                    clients.Add(clientToAdd);
-                    sb.AppendLine(String.Format(SuccessfullyImportedClients, client.Name));
+                    clientToAdd.Addresses.Add(addressToAdd);
                 }
 
+                clients.Add(clientToAdd);
+                sb.AppendLine(String.Format(SuccessfullyImportedClients, clientToAdd.Name));
             }
 
             context.Clients.AddRange(clients);
@@ -99,7 +91,7 @@
 
         public static string ImportInvoices(InvoicesContext context, string jsonString)
         {
-            var invoicesDto = JsonConvert.DeserializeObject<ImportInvoiceDto[]>(jsonString).ToList();
+            var invoicesDto = JsonConvert.DeserializeObject<ImportInvoiceDto[]>(jsonString);
 
             StringBuilder sb = new StringBuilder();
 
@@ -113,32 +105,43 @@
                     continue;
                 }
 
-                if (invoiceDto.DueDate == DateTime.ParseExact
-                    ("01/01/0001", "dd/MM/yyyy", CultureInfo.InvariantCulture) ||
-                    invoiceDto.IssueDate == DateTime.ParseExact("01/01/0001", "dd/MM/yyyy", CultureInfo.InvariantCulture))
+                //if (DateTime.TryParseExact(invoiceDto.IssueDate, "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                //{
+                //    sb.AppendLine(ErrorMessage);
+                //    continue;
+                //}
+                //
+                //if (DateTime.TryParseExact(invoiceDto.DueDate, "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                //{
+                //    sb.AppendLine(ErrorMessage);
+                //    continue;
+                //}
+
+                if (invoiceDto.CurrencyType < 0 || invoiceDto.CurrencyType > 2)
                 {
-                    sb.AppendLine("Invalid data!");
+                    sb.AppendLine(ErrorMessage);
+                    continue;
+                }
+
+                var issueDate = DateTime.ParseExact(invoiceDto.IssueDate, "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
+                var dueDate = DateTime.ParseExact(invoiceDto.DueDate, "yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture);
+
+
+                if (dueDate < issueDate)
+                {
+                    sb.AppendLine(ErrorMessage);
                     continue;
                 }
 
                 var invoiceToAdd = new Invoice()
                 {
                     Number = invoiceDto.Number,
-                    IssueDate = invoiceDto.IssueDate,
-                    DueDate = invoiceDto.DueDate,
+                    IssueDate = issueDate,
+                    DueDate = dueDate,
                     Amount = invoiceDto.Amount,
-                    CurrencyType = invoiceDto.CurrencyType,
-                    ClientId = invoiceDto.ClientId
+                    CurrencyType = (CurrencyType)invoiceDto.CurrencyType,
+                    ClientId = invoiceDto.ClientId,
                 };
-
-                if (invoiceToAdd.IssueDate > invoiceToAdd.DueDate)
-                {
-                    sb.AppendLine(ErrorMessage);
-                    continue;
-                }
-
-
-                
 
                 invoices.Add(invoiceToAdd);
                 sb.AppendLine(String.Format(SuccessfullyImportedInvoices, invoiceToAdd.Number));
@@ -152,50 +155,48 @@
 
         public static string ImportProducts(InvoicesContext context, string jsonString)
         {
-            var productsDto = JsonConvert.DeserializeObject<ImportProductDto[]>(jsonString).ToList();
+            var productsDto = JsonConvert.DeserializeObject<ImportProductDto[]>(jsonString);
 
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             List<Product> products = new List<Product>();
 
-            //List<Address> addresses = new List<Address>();
+            List<int> clientsIds = context.Clients.Select(x => x.Id).ToList();
 
-            List<int> clientIds = context.Clients.Select(x => x.Id).ToList();
 
             foreach (var productDto in productsDto)
             {
                 if (!IsValid(productDto))
                 {
                     sb.AppendLine(ErrorMessage);
+                    continue;
                 }
 
-                else
+                var productToAdd = new Product()
                 {
-                    var productToAdd = new Product()
-                    {
-                        Name = productDto.Name,
-                        Price = productDto.Price,
-                        CategoryType = productDto.CategoryType,
-                    };
+                    Name = productDto.Name,
+                    Price = productDto.Price,
+                    CategoryType = (CategoryType)productDto.CategoryType,
+                };
 
-                    foreach (var id in productDto.Clients.Distinct())
+                foreach (var id in productDto.Clients.Distinct())
+                {
+                    if (!clientsIds.Contains(id))
                     {
-                        if (!clientIds.Contains(id))
-                        {
-                            sb.AppendLine(ErrorMessage);
-                        }
-                        else
-                        {
-                            productToAdd.ProductsClients.Add(new ProductClient
-                            {
-                                ClientId = id,
-                            });
-                        }
+                        sb.AppendLine(ErrorMessage);
+                        continue;
                     }
 
-                    products.Add(productToAdd);
-                    sb.AppendLine(String.Format(SuccessfullyImportedProducts, productToAdd.Name, productToAdd.ProductsClients.Count));
+                    productToAdd.ProductsClients.Add(new ProductClient()
+                    {
+                        ClientId = id,
+                    });
+
+
                 }
+
+                products.Add(productToAdd);
+                sb.AppendLine(String.Format(SuccessfullyImportedProducts, productToAdd.Name, productToAdd.ProductsClients.Count));
             }
 
             context.Products.AddRange(products);

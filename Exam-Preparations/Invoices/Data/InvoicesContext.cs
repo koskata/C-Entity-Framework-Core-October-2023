@@ -26,6 +26,7 @@ namespace Invoices.Data
 
         public DbSet<ProductClient> ProductsClients { get; set; }
 
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -37,7 +38,7 @@ namespace Invoices.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ProductClient>(x => x.HasKey(k => new { k.ProductId, k.ClientId }));
+            modelBuilder.Entity<ProductClient>(pc => pc.HasKey(x => new { x.ProductId, x.ClientId }));
         }
     }
 }

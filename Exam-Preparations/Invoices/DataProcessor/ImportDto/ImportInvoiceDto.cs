@@ -16,17 +16,16 @@ namespace Invoices.DataProcessor.ImportDto
         public int Number { get; set; }
 
         [Required]
-        public DateTime IssueDate { get; set; }
+        public string IssueDate { get; set; }
 
         [Required]
-        public DateTime DueDate { get; set; }
+        public string DueDate { get; set; }
 
         [Required]
         public decimal Amount { get; set; }
 
         [Required]
-        [EnumDataType(typeof(CurrencyType))]
-        public CurrencyType CurrencyType { get; set; }
+        public int CurrencyType { get; set; }
 
         [Required]
         public int ClientId { get; set; }

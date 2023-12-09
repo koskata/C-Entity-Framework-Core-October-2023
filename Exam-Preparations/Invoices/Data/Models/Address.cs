@@ -16,7 +16,8 @@ namespace Invoices.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MinLength(10), MaxLength(20)]
+        [MinLength(10)]
+        [MaxLength(20)]
         public string StreetName { get; set; }
 
         [Required]
@@ -26,17 +27,20 @@ namespace Invoices.Data.Models
         public string PostCode { get; set; }
 
         [Required]
-        [MinLength(5), MaxLength(15)]
+        [MinLength(5)]
+        [MaxLength(15)]
         public string City { get; set; }
 
         [Required]
-        [MinLength(5), MaxLength(15)]
+        [MinLength(5)]
+        [MaxLength(15)]
         public string Country { get; set; }
 
         [Required]
         public int ClientId { get; set; }
 
         [ForeignKey(nameof(ClientId))]
+
         public Client Client { get; set; }
     }
 
